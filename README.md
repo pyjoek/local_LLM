@@ -6,7 +6,7 @@
 ## Run
 ### Steps
 Install docker
-   sudo apt install docker
+  - sudo apt install docker
 
 pull ollama server
   - docker run -d --name ollama --restart unless-stopped -p 127.0.0.1:11434:11434 -v ollama:/root/.ollama ollama/ollama
