@@ -12,7 +12,8 @@ pull ollama server
   - docker run -d --name ollama --restart unless-stopped -p 127.0.0.1:11434:11434 -v ollama:/root/.ollama ollama/ollama
 
 Pull the model
-  - docker compose exec ollama ollama pull qwen2.5:1.5b
+  - docker exec -it ollama ollama pull qwen2.5:1.5b
+  - docker exec -it ollama ollama list
 
 After finishing pulling, Test it
-  - docker compose exec ollama ollama run qwen2.5:1.5b "your question"
+  - docker exec -it slm-ollama-1 ollama run qwen2.5:1.5b "write your question here"
