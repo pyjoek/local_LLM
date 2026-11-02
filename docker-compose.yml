@@ -1,0 +1,25 @@
+services:
+  # --- Chatbot: local LLM runtime
+  ollama:
+    image: ollama/ollama
+    volumes:
+      - ollama:/root/.ollama
+    restart: unless-stopped
+
+  # --- Chatbot: web app (retrieval + chat UI) at http://localhost:8000
+  chatbot:
+    build: ./chatbot
+    ports:
+      - "8000:8000"
+    environment:
+      OLLAMA_URL: http://ollama:11434
+      MODEL: qwen2.5:1.5b
+    volumes:
+      - ./data:/app/data:ro
+      - ./chatbot/static:/app/static
+    depends_on:
+      - ollama
+    restart: unless-stopped
+
+volumes:
+  ollama:

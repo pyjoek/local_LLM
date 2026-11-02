@@ -17,3 +17,12 @@ Pull the model
 
 After finishing pulling, Test it
   - docker exec -it slm-ollama-1 ollama run qwen2.5:1.5b "write your question here"
+
+## Chatbot
+### Structure
+  -> local_SLM/
+    -> chatbot/
+      -> static/
+        -> .html
+    -> agents/
+    -> README.md
