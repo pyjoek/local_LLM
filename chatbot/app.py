@@ -41,7 +41,7 @@ def stream(req: ChatReq):
                 "think": THINK,
                 "options": {"num_ctx": NUM_CTX},
             },
-            stream=,
+            stream=True,
             timeout=900,
         ) as r:
             if r.status_code != 200:

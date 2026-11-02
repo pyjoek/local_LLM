@@ -26,3 +26,11 @@ After finishing pulling, Test it
         -> .html
     -> agents/
     -> README.md
+
+### Check if container is running
+  - docker compose up -d --build // Building the Dockerfile from docker-compose.yml
+  - docker ps // Checking Running containers
+  - docker compose logs chatbots // Viewing the logs of container specified
+
+### Recreate container after updating its codes
+  docker compose up -d --force-recreate chatbots

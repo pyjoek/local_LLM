@@ -7,7 +7,7 @@ services:
     restart: unless-stopped
 
   # --- Chatbot: web app (retrieval + chat UI) at http://localhost:8000
-  chatbot:
+  chatbots:
     build: ./chatbot
     ports:
       - "8000:8000"
