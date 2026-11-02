@@ -4,8 +4,123 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>BotJIA</title>
-<link rel="stylesheet" href="/style.css">
-<script src="/index.js" defer></script>
+<style>
+:root {
+    --bg:#0f1115;
+    --panel:#181b22;
+    --text:#e6e8ee;
+    --muted:#8b92a5;
+    --accent:#d4af37;
+    --user:#232838;
+    --line:#2c3140;
+    --bad:#e5646e;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font:15px/1.5 system-ui,sans-serif;
+    display:flex;
+    flex-direction:column;
+    height:100vh;
+}
+
+header {
+    padding:12px 20px;
+    border-bottom:1px solid var(--line);
+    font-weight:600;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+header span {
+    color:var(--accent);
+}
+
+header button {
+    background:none;
+    border:1px solid var(--line);
+    color:var(--muted);
+    padding:4px 12px;
+    font-weight:400;
+}
+
+#log {
+    flex:1;
+    overflow-y:auto;
+    padding:20px;
+    max-width:900px;
+    width:100%;
+    margin:0 auto;
+}
+
+.msg {
+    margin:0 0 16px;
+    padding:12px 14px;
+    border-radius:10px;
+    white-space:pre-wrap;
+    word-wrap:break-word;
+}
+
+.user {
+    background:var(--user);
+    margin-left:15%;
+}
+
+.bot {
+    background:var(--panel);
+}
+
+.muted {
+    color:var(--muted);
+}
+
+.err {
+    color:var(--bad);
+}
+
+form {
+    display:flex;
+    gap:10px;
+    padding:14px 20px;
+    border-top:1px solid var(--line);
+    max-width:900px;
+    width:100%;
+    margin:0 auto;
+}
+
+textarea {
+    flex:1;
+    resize:none;
+    background:var(--panel);
+    color:var(--text);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:10px;
+    font:inherit;
+}
+
+button {
+    background:var(--accent);
+    color:#111;
+    border:0;
+    border-radius:8px;
+    padding:0 20px;
+    font-weight:600;
+    cursor:pointer;
+}
+
+button:disabled {
+    opacity:.5;
+    cursor:wait;
+}
+</style>
 </head>
 <body>
 <header>
@@ -16,5 +131,81 @@
   <textarea id="q" rows="2" placeholder="Ask BotJIA general Questions ..." autofocus></textarea>
   <button id="b">Send</button>
 </form>
+<script>
+const $ = id => document.getElementById(id);
+const log = $("log"), q = $("q"), b = $("b");
+let history = [];
+
+function add(cls, text) {
+  const el = document.createElement("div");
+  el.className = "msg " + cls;
+  el.textContent = text;
+  log.append(el);
+  log.scrollTop = log.scrollHeight;
+  return el;
+}
+
+async function send() {
+  const message = q.value.trim();
+  if (!message || b.disabled) return;
+  q.value = "";
+  b.disabled = true;
+
+  add("user", message);
+  const reply = add("bot muted", "Thinking…");
+  let answer = "";
+
+  try {
+    const res = await fetch("/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message, history })
+    });
+    if (!res.ok) throw new Error(await res.text() || "Request failed");
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buf = "";
+
+    const handle = line => {
+      if (!line.trim()) return;
+      const d = JSON.parse(line);
+      if (d.error) throw new Error(d.error);
+      if (d.token) {
+        answer += d.token;
+        reply.className = "msg bot";
+        reply.textContent = answer;
+        log.scrollTop = log.scrollHeight;
+      }
+    };
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buf += decoder.decode(value, { stream: true });
+      const lines = buf.split("\n");
+      buf = lines.pop();
+      lines.forEach(handle);
+    }
+    handle(buf);
+
+    if (!answer) reply.textContent = "(No response)";
+    history.push({ role: "user", content: message }, { role: "assistant", content: answer });
+  } catch (e) {
+    reply.className = "msg bot err";
+    reply.textContent = (answer ? answer + "\n\n" : "") + "Error: " + e.message;
+  } finally {
+    b.disabled = false;
+    q.focus();
+  }
+}
+
+$("f").addEventListener("submit", e => { e.preventDefault(); send(); });
+q.addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
+});
+$("clear").addEventListener("click", () => { history = []; log.innerHTML = ""; });
+
+</script>
 </body>
 </html>
