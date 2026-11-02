@@ -33,4 +33,5 @@ After finishing pulling, Test it
   - docker compose logs chatbots // Viewing the logs of container specified
 
 ### Recreate container after updating its codes
-  docker compose up -d --force-recreate chatbots
+  - docker compose build
+  - docker compose up -d --force-recreate chatbots
