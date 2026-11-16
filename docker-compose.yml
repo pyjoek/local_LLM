@@ -8,6 +8,7 @@ services:
 
   # --- Chatbot: web app (retrieval + chat UI) at http://localhost:8000
   chatbots:
+    container_name: chatgpt
     build: ./chatbot
     ports:
       - "8000:8000"
