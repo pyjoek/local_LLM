@@ -35,3 +35,10 @@ After finishing pulling, Test it
 ### Recreate container after updating its codes
   - docker compose build
   - docker compose up -d --force-recreate chatbots
+
+
+# The Agent
+## Steps to use it
+  - python agents/grok.py dev        # If you want it for general use
+  - python agents/grok.py dev        # If you want to use it for your local folder coding
+  - python agents/grok.py sysadmin   # If you want it to help you with your system
