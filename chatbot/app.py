@@ -14,7 +14,6 @@ SYSTEM = os.getenv("SYSTEM_PROMPT", "You are a helpful, concise assistant.")
 
 app = FastAPI(title="Chat")
 
-
 class ChatReq(BaseModel):
     message: str
     history: list[dict] = Field(default_factory=list)
